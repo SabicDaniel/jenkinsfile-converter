@@ -103,7 +103,7 @@ describe('convertJenkinsfileToConfigYml', () => {
     test('error-handling', () => {
         expect(res.status.mock.calls[1][0]).toBe(500);
         expect(res.set.mock.calls[1][0]).toBe('Content-Type');
-        expect(res.set.mock.calls[1][1]).toBe('text/plain; charset=UTF-8');
+        expect(res.set.mock.calls[1][1]).toBe('application/json');
         expect(res.end).toHaveBeenCalled();
     });
 });
@@ -165,7 +165,7 @@ describe('convertJenkinsfileToJSON', () => {
     test('error-handling', () => {
         expect(res.status.mock.calls[2][0]).toBe(500);
         expect(res.set.mock.calls[2][0]).toBe('Content-Type');
-        expect(res.set.mock.calls[2][1]).toBe('text/plain; charset=UTF-8');
+        expect(res.set.mock.calls[2][1]).toBe('application/json');
         expect(res.end).toHaveBeenCalled();
     });
 });
