@@ -1,19 +1,15 @@
 const axios = require('axios');
 const querystring = require('querystring');
-const util = require('util');
 
 const { map } = require('./mapping/mapper.js');
+const { UpperStreamError, ParseFailure, MapperError } = require('./errors.js');
 
 const jenkinsTarget = (typeof __JENKINS_TARGET === typeof '' && __JENKINS_TARGET !== '') ? __JENKINS_TARGET : 'https://jenkinsto.cc/i/to-json';
 
-const formatErrorDetails = (err) => {
-  return `  ${util.format(err).replace(/\n/g, '\n  ')}`;
-};
-
 // Main from here
-const jenkinsToCCI = async (jenkinsfile) => {
+const jenkinsToCCI = async (jenkinsfile, rid = '') => {
   const fromJenkins = (await axios.post(jenkinsTarget, querystring.stringify({ jenkinsfile: jenkinsfile.toString('utf-8') })).catch((err) => {
-    throw (new Error(`Error in parser. Details:\n${formatErrorDetails(err)}`));
+    throw (new UpperStreamError(rid, 'Upper stream infrastructural error.', err));
   })).data;
   let isFinal = false;
 
@@ -37,10 +33,15 @@ const jenkinsToCCI = async (jenkinsfile) => {
       }
 
       isFinal = true;
-      throw new Error(`${errorMsgArr.join('\n\n')}\n`);
+      throw new ParseFailure(rid, `${errorMsgArr.join('\n\n')}\n`);
+    }
+
+    if (!fromJenkins.data.json) {
+      isFinal = true;
+      throw new UpperStreamError(rid, 'Uppser stream returned unconsistent reponse without valid body.', void 0, fromJenkins);
     }
   } catch (err) {
-    throw isFinal ? err : new Error(`Error in verification of response from parser. Details:\n${formatErrorDetails(err)}`)
+    throw isFinal ? err : new UpperStreamError(rid, `Upper stream returned broken response.`, err, fromJenkins)
   }
 
   try {
@@ -49,9 +50,10 @@ const jenkinsToCCI = async (jenkinsfile) => {
     const configYml = circleConfig.toYAML();
 
     isFinal = true;
+    // TODO: Metrics submission
     return configYml;
   } catch (err) {
-    throw new Error(`Error in mapping. Details:\n${formatErrorDetails(err)}`);
+    throw new MapperError(rid, `Error in mapping.`, err, fromJenkins.data.json);
   }
 };
 
