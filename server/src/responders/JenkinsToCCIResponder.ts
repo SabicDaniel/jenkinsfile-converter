@@ -83,19 +83,36 @@ class JenkinsToCCIResponder {
         err: any,
         serverVersion: string
     ): void {
-        res.status(500).set('Content-Type', 'text/plain; charset=UTF-8')
-            .end(`Conversion failed. Please include the message below when you contact support for this error.
+        res.status(JenkinsToCCIResponder.httpErrorStatus(err))
+            .set('Content-Type', 'application/json')
+            .end(
+                JSON.stringify(
+                    {
+                        greeting:
+                            'Conversion failed. Please contact support with this entire error message.',
+                        at: new Date().toUTCString(),
+                        serverVersion: serverVersion,
+                        calling: `${req.method} ${req.path}`,
+                        message: err ? err.message : '',
+                        verbose: util.format(err)
+                    },
+                    null,
+                    4
+                )
+            );
+    }
 
-At: ${new Date().toUTCString()}
-Server version: ${serverVersion}
-Calling: ${req.method} ${req.path}
-           
-Message:
-${util.format(err)}
-
-Request body (stringified):
-${JSON.stringify(req.body.toString('utf-8'))}
-`);
+    private static httpErrorStatus(err: any): number {
+        try {
+            switch (true) {
+                case err.errorSide === 'client':
+                    return 400;
+                case err.errorSide === 'server':
+                    return 500;
+            }
+        } catch (err) {
+            return 500;
+        }
     }
 }
 
