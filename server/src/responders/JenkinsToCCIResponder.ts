@@ -108,6 +108,7 @@ class JenkinsToCCIResponder {
                 case err.errorSide === 'client':
                     return 400;
                 case err.errorSide === 'server':
+                default:
                     return 500;
             }
         } catch (err) {
