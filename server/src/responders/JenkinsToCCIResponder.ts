@@ -1,6 +1,7 @@
 import * as axios from 'axios';
 import * as fs from 'fs';
 import * as util from 'util';
+import * as uuid from 'uuid';
 
 import * as jfcModule from '../../assets/jfc-module.js';
 
@@ -33,7 +34,7 @@ class JenkinsToCCIResponder {
         res: express.Response
     ): Promise<void> {
         return jfcModule
-            .jenkinsToCCI(req.body)
+            .jenkinsToCCI(req.body, uuid.v4())
             .then((ret) => {
                 res.status(200).set('Content-Type', 'text/x-yaml').end(ret);
             })
