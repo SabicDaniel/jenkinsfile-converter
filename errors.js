@@ -19,10 +19,9 @@ class CustomError extends Error {
         this.name = errorName;
         this.errorSide = errorSide;
         this.message = msg;
-        this.originalError = originalError;
 
         if (originalError) {
-            this.message += `\nOriginal error:\n    ${util.format(originalError).replace(/\n/g, '\n    ')}`.replace(/\n/g, '\n    ');
+            this.originalError = originalError;
         }
 
         // TODO: Metrics submission
@@ -47,15 +46,15 @@ class UpperStreamError extends ServerError {
         super(rid, 'UpperStreamError', msg, originalError);
 
         if (rawResponse) {
-            this.rawResponse = rawResponse;
-            this.message += `\nRaw response:\n    ${JSON.stringify(rawResponse).replace(/\n/g, '\n    ')}`.replace(/\n/g, '\n    ');
+            this.rawResponse = JSON.stringify(rawResponse);
         }
     }
 }
 
 class ParseFailure extends ClientError {
-    constructor(rid, msg, originalError) {
-        super(rid, 'ParseFailure', msg, originalError);
+    constructor(rid, msg, userInput) {
+        super(rid, 'ParseFailure', msg);
+        this.userInput = userInput.toString();
     }
 }
 
@@ -64,8 +63,7 @@ class MapperError extends ServerError {
         super(rid, 'MapperError', msg, originalError);
 
         if (rawInput) {
-            this.rawInput = rawInput;
-            this.message += `\nRaw input:\n    ${JSON.stringify(rawInput).replace(/\n/g, '\n    ')}`.replace(/\n/g, '\n    ');
+            this.rawInput = JSON.stringify(rawInput);
         }
     }
 }

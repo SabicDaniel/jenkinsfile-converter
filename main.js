@@ -33,7 +33,7 @@ const jenkinsToCCI = async (jenkinsfile, rid = '') => {
       }
 
       isFinal = true;
-      throw new ParseFailure(rid, `${errorMsgArr.join('\n\n')}\n`);
+      throw new ParseFailure(rid, `${errorMsgArr.join('\n\n')}\n`, jenkinsfile);
     }
 
     if (!fromJenkins.data.json) {
