@@ -4,20 +4,20 @@ class CustomError extends Error {
     /**
      * @type {'server' | 'client'}
      */
-    errorSide;
+    errorIn;
 
     /**
      * @param {string} rid
      * @param {string} errorName
-     * @param {'server' | 'client'} errorSide
+     * @param {'server' | 'client'} errorIn
      * @param {string} msg 
      */
-    constructor(rid, errorName, errorSide, msg, originalError) {
+    constructor(rid, errorName, errorIn, msg, originalError) {
         super();
 
         this.rid = rid;
         this.name = errorName;
-        this.errorSide = errorSide;
+        this.errorIn = errorIn;
         this.message = msg;
 
         if (originalError) {
